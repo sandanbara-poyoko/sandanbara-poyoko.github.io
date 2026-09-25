@@ -11,5 +11,18 @@ window.POSTS = [
       }
     ],
     body:`人物の接地面でパースを意識したい。シルエットを捉えるのと、立体を捉えるのが同時並行できない。。`
+  },
+    {
+    id: 'study-2026-09-24-photo',
+    date: '2026-09-24',
+    type: 'STUDY',
+    title: 'photo study',
+    images: [
+      {
+        src: 'assets/イラスト 20260924 4.png',
+        alt: '2人の少年が本を読んでいる様子のスケッチ'
+      }
+    ],
+    body: ''
   }
   ];
