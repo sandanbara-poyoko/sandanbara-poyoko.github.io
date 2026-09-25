@@ -11,9 +11,11 @@ window.PROFILE = {
   intro: '絵を描くのが大好きです。',
   about: 'このサイトでは、成長録も兼ねて、絵をまとめたり、思ったことを気ままに綴ったりしています。\n\n練習も、制作途中のものも、完成した一枚も。描くなかで見つけたことを、ここに残していきます。',
   activity: '人体やパース、空間、塗りの勉強をしながら、イラストを制作しています。',
-  links: [
-    { label: 'X', icon: 'x', description: '日々の制作と練習の記録', url: '' },
-    { label: 'Instagram', icon: 'instagram', description: '絵とスケッチ', url: '' },
-    { label: 'Skeb', icon: 'image', description: 'イラストのリクエスト', url: '' }
+    links: [
+    { label: 'X', icon: 'x', description: '日々の制作と練習の記録', url: 'https://x.com/poyo_sandanbara' },
+    { label: 'Instagram', icon: 'instagram', description: '絵とスケッチ', url: 'https://www.instagram.com/sandanbara_poyoko/' },
+    { label: 'Skeb', icon: 'image', description: 'イラストのリクエスト', url: 'https://skeb.jp/@poyo_sandanbara' },
+    { label: 'つなぐ', icon: 'image', description: 'イラストのご依頼', url: 'https://tsunagu.cloud/users/sandanbara_poyoko' }
+  ]
   ]
 };
