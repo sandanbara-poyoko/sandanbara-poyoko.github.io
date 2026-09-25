@@ -57,7 +57,7 @@ window.POSTS = [
     title: '空間スケッチ',
     images: [
       {
-        src: 'assets/イラスト 20260918 2(3).png',
+        src: 'assets/イラスト 20260918 2 (3).png',
         alt: 'ビル街のスケッチ'
       },
       {
