@@ -17,5 +17,4 @@ window.PROFILE = {
     { label: 'Skeb', icon: 'image', description: 'イラストのリクエスト', url: 'https://skeb.jp/@poyo_sandanbara' },
     { label: 'つなぐ', icon: 'image', description: 'イラストのご依頼', url: 'https://tsunagu.cloud/users/sandanbara_poyoko' }
   ]
-  ]
 };
