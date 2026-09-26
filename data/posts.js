@@ -87,15 +87,15 @@ window.POSTS = [
     title: '30分スケッチ',
     images: [
       {
-        src: 'assets/イラスト Your30DeskShare2.png',
+        src: 'assets/Your30DeskShare2.png',
         alt: '電車内のスケッチ'
       },
       {
-        src: 'assets/イラスト Your30DeskShare3.png',
+        src: 'assets/Your30DeskShare3.png',
         alt: '街並みのスケッチ'
       },
       {
-        src: 'assets/イラスト Your30DeskShare1.png',
+        src: 'assets/Your30DeskShare1.png',
         alt: 'フォーチュンクッキーのスケッチ'
       }
     ],
