@@ -74,7 +74,7 @@ window.POSTS = [
     title: '人物スケッチ',
     images: [
       {
-        src: 'assets/イラスト 20260926 (2).png',
+        src: 'assets/イラスト 20260926 2.png',
         alt: '少年二人のスケッチ'
       }
     ],
