@@ -45,6 +45,17 @@ const avatar=()=>`<span class="avatar ${P.avatarFromScreenshot?'screenshot':''}"
 function prose(text){return String(text||'').split(/\n\s*\n/).map(block=>block.split(/(?=^## )/m).filter(Boolean).map(part=>{if(part.startsWith('## ')){const [title,...rest]=part.split('\n');return `<h3>${esc(title.slice(3))}</h3>${rest.length?`<p>${esc(rest.join('\n'))}</p>`:''}`;}return `<p>${esc(part)}</p>`;}).join('')).join('');}
 function meta(p){return `<div class="entry-meta"><time datetime="${esc(p.date)}">${date(p.date)}</time><span class="tag">${esc(p.type)}</span>${p.sample?'<span class="sample">記入例</span>':''}</div>`;}
 function images(list){return list?.length?`<div class="entry-images ${list.length===1?'single':''}">${list.map(im=>`<button class="image-button" type="button" data-image="${safe(im.src)}" data-alt="${esc(im.alt)}" aria-label="${esc(im.alt||'画像')}を拡大"><img src="${safe(im.src)}" alt="${esc(im.alt)}" loading="lazy"></button>`).join('')}</div>`:'';}
+
+function sharePost(p) {
+  const labels = { NOTE: '𝐧𝐨𝐭𝐞', STUDY: '𝐬𝐭𝐮𝐝𝐲', WORK: '𝐰𝐨𝐫𝐤', MONTHLY: '𝐦𝐨𝐧𝐭𝐡𝐥𝐲' };
+  const label = labels[p.type] || '𝐣𝐨𝐮𝐫𝐧𝐚𝐥';
+  const text = `【✦ ${label} ✦】\nWebサイトを更新しました！\n\n「${p.title}」`;
+  const url = new URL('post.html', location.href);
+  url.searchParams.set('id', p.id);
+  const intent = 'https://x.com/intent/tweet?' + new URLSearchParams({ text, url: url.href });
+  return `<div class="post-share"><a class="share-button" href="${esc(intent)}" target="_blank" rel="noopener noreferrer">Xで更新をお知らせ ↗</a><p>記事の種類・タイトル・リンク入りの定型文を開きます。投稿前に編集できます。</p></div>`;
+}
+
 function entry(p){const raw=String(p.body||'').replace(/^## /gm,'');const excerpt=raw.length>135?raw.slice(0,135)+'…':raw;return `<article class="entry">${meta(p)}<div><h2><a href="post.html?id=${encodeURIComponent(p.id)}">${esc(p.title)}</a></h2>${images(p.images||[])}<p class="excerpt">${esc(excerpt)}</p><a class="read-more" href="post.html?id=${encodeURIComponent(p.id)}">記録を読む</a></div></article>`;}
 const nav=[['home','index.html','HOME'],['archive','archive.html','ARCHIVE'],['works','works.html','WORKS'],['about','about.html','ABOUT'],['links','links.html','LINKS']];
 const current=route==='post'?'archive':route;
@@ -74,7 +85,7 @@ const icons={x:'<path d="M5 4h5l17 24h-5zM27 4 5 28"/>',instagram:'<rect x="4" y
 content=heading('Elsewhere.','絵を描きながら、こちらにも。')+`<div class="link-list">${P.links.map(l=>{const href=/^https?:\/\//i.test(l.url)?safe(l.url):'';return `<${href?'a':'div'} class="link-card" ${href?`href="${href}" target="_blank" rel="noopener noreferrer"`:''}><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">${icons[l.icon]||icons.image}</svg><div><strong>${esc(l.label)}</strong><p>${esc(l.description)}</p></div><span class="link-end">${href?'↗':'準備中'}</span></${href?'a':'div'}>`;}).join('')}</div>`;
 }else if(route==='post'){
 const p=posts.find(p=>p.id===params.get('id'));
-content=p?`<article class="post-detail"><a class="back" href="archive.html">← ARCHIVE</a><header class="page-head">${meta(p)}<h1>${esc(p.title)}</h1></header>${images(p.images)}<div class="prose">${prose(p.body)}</div><a class="back" href="archive.html?month=${p.date.slice(0,7)}">${p.date.slice(0,7).replace('-','年')}月の記録へ</a></article>`:heading('Not found.','この記録が見つかりませんでした。')+'<a class="text-link" href="archive.html">ARCHIVEへ戻る</a>';
+content=p?`<article class="post-detail"><a class="back" href="archive.html">← ARCHIVE</a><header class="page-head">${meta(p)}<h1>${esc(p.title)}</h1></header>${images(p.images)}<div class="prose">${prose(p.body)}</div>${sharePost(p)}<a class="back" href="archive.html?month=${p.date.slice(0,7)}">${p.date.slice(0,7).replace('-','年')}月の記録へ</a></article>`:heading('Not found.','この記録が見つかりませんでした。')+'<a class="text-link" href="archive.html">ARCHIVEへ戻る</a>';
 if(p)document.title=p.title+' | '+P.name;
 }
 if(route!=='post')document.title=(nav.find(n=>n[0]===route)?.[2]||'Drawing Archive')+' | '+P.name;
