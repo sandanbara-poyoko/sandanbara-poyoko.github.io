@@ -13,3 +13,9 @@
 a.page-link:hover{background:#eee;color:var(--ink)}
 .page-link[aria-disabled=true]{color:#888;border-style:dashed;background:transparent}
 @media(max-width:600px){.page-links{grid-template-columns:repeat(2,minmax(0,1fr))}.page-link{font-size:12px}}
+
+/* 記事ごとの更新お知らせ */
+.post-share{margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
+.share-button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 20px;border:1px solid #bbb;border-radius:3px;background:var(--paper);font-size:13px;letter-spacing:.04em}
+.share-button:hover{background:#eee;color:var(--ink)}
+.post-share p{font-size:12px;line-height:1.9;color:var(--muted);margin:12px 0 0}
