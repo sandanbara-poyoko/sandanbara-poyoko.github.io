@@ -115,7 +115,7 @@ window.POSTS = [
     body: ''
   },
   {
-    id: 'study-2026-09-26-03',
+    id: 'study-2026-09-26-04',
     date: '2026-09-26',
     type: 'STUDY',
     title: '基礎練習',
