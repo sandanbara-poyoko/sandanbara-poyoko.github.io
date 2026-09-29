@@ -8,6 +8,22 @@ const P=window.PROFILE;
 if(!P||!Array.isArray(window.POSTS)||!Array.isArray(window.WORKS)){root.innerHTML='<div class="error">データを読み込めませんでした。dataフォルダーのファイルと記号の抜けを確認してください。</div>';return;}
 const posts=[...window.POSTS].sort((a,b)=>b.date.localeCompare(a.date));
 const params=new URLSearchParams(location.search);
+
+// 告知用の表示設定（認証ではなく、このブラウザだけの表示切り替え）。
+const announcementKey = 'drawing-archive-announcement';
+const announcementSwitch = params.get('announce');
+let announcementEnabled = announcementSwitch === 'on';
+try {
+  if (announcementSwitch === 'on') localStorage.setItem(announcementKey, 'on');
+  if (announcementSwitch === 'off') localStorage.removeItem(announcementKey);
+  announcementEnabled = localStorage.getItem(announcementKey) === 'on';
+} catch (_) {}
+if (announcementSwitch === 'on' || announcementSwitch === 'off') {
+  const clean = new URL(location.href);
+  clean.searchParams.delete('announce');
+  try { history.replaceState(null, '', clean.href); } catch (_) {}
+}
+
 const months=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
 const types=['ALL','STUDY','WORK','NOTE','MONTHLY'];
 
@@ -47,13 +63,16 @@ function meta(p){return `<div class="entry-meta"><time datetime="${esc(p.date)}"
 function images(list){return list?.length?`<div class="entry-images ${list.length===1?'single':''}">${list.map(im=>`<button class="image-button" type="button" data-image="${safe(im.src)}" data-alt="${esc(im.alt)}" aria-label="${esc(im.alt||'画像')}を拡大"><img src="${safe(im.src)}" alt="${esc(im.alt)}" loading="lazy"></button>`).join('')}</div>`:'';}
 
 function sharePost(p) {
+  if (!announcementEnabled) return '';
   const labels = { NOTE: '𝐧𝐨𝐭𝐞', STUDY: '𝐬𝐭𝐮𝐝𝐲', WORK: '𝐰𝐨𝐫𝐤', MONTHLY: '𝐦𝐨𝐧𝐭𝐡𝐥𝐲' };
   const label = labels[p.type] || '𝐣𝐨𝐮𝐫𝐧𝐚𝐥';
   const text = `【✦ ${label} ✦】\nWebサイトを更新しました！\n\n「${p.title}」`;
   const url = new URL('post.html', location.href);
   url.searchParams.set('id', p.id);
   const intent = 'https://x.com/intent/tweet?' + new URLSearchParams({ text, url: url.href });
-  return `<div class="post-share"><a class="share-button" href="${esc(intent)}" target="_blank" rel="noopener noreferrer">Xで更新をお知らせ ↗</a><p>記事の種類・タイトル・リンク入りの定型文を開きます。投稿前に編集できます。</p></div>`;
+  const off = new URL(url.href);
+  off.searchParams.set('announce', 'off');
+  return `<div class="post-share"><a class="share-button" href="${esc(intent)}" target="_blank" rel="noopener noreferrer" aria-label="この記事の告知文をXで開く">告知 ↗</a><a class="share-hide" href="${esc(off.href)}" aria-label="このブラウザで告知ボタンを非表示にする">非表示</a></div>`;
 }
 
 function entry(p){const raw=String(p.body||'').replace(/^## /gm,'');const excerpt=raw.length>135?raw.slice(0,135)+'…':raw;return `<article class="entry">${meta(p)}<div><h2><a href="post.html?id=${encodeURIComponent(p.id)}">${esc(p.title)}</a></h2>${images(p.images||[])}<p class="excerpt">${esc(excerpt)}</p><a class="read-more" href="post.html?id=${encodeURIComponent(p.id)}">記録を読む</a></div></article>`;}
