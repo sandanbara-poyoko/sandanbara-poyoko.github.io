@@ -62,6 +62,30 @@ function prose(text){return String(text||'').split(/\n\s*\n/).map(block=>block.s
 function meta(p){return `<div class="entry-meta"><time datetime="${esc(p.date)}">${date(p.date)}</time><span class="tag">${esc(p.type)}</span>${p.sample?'<span class="sample">記入例</span>':''}</div>`;}
 function images(list){return list?.length?`<div class="entry-images ${list.length===1?'single':''}">${list.map(im=>`<button class="image-button" type="button" data-image="${safe(im.src)}" data-alt="${esc(im.alt)}" aria-label="${esc(im.alt||'画像')}を拡大"><img src="${safe(im.src)}" alt="${esc(im.alt)}" loading="lazy"></button>`).join('')}</div>`:'';}
 
+
+/* NOTE: images の1枚目は [画像1]、2枚目は [画像2]。
+   指定した画像は本文中に、指定していない画像は冒頭に表示します。 */
+function noteContent(p) {
+  const list = p.images || [];
+  const text = String(p.body || '');
+  const used = new Set();
+  const parts = [];
+  let cursor = 0;
+  for (const match of text.matchAll(/\[画像([1-9][0-9]*)\]/g)) {
+    const index = Number(match[1]) - 1;
+    if (!list[index]) continue;
+    const before = text.slice(cursor, match.index).trim();
+    if (before) parts.push(prose(before));
+    parts.push(images([list[index]]));
+    used.add(index);
+    cursor = match.index + match[0].length;
+  }
+  const after = text.slice(cursor).trim();
+  if (after) parts.push(prose(after));
+  return images(list.filter((_, index) => !used.has(index))) +
+    '<div class="prose">' + parts.join('') + '</div>';
+}
+
 function sharePost(p) {
   if (!announcementEnabled) return '';
   const labels = { NOTE: '𝐧𝐨𝐭𝐞', STUDY: '𝐬𝐭𝐮𝐝𝐲', WORK: '𝐰𝐨𝐫𝐤', MONTHLY: '𝐦𝐨𝐧𝐭𝐡𝐥𝐲' };
@@ -75,7 +99,7 @@ function sharePost(p) {
   return `<div class="post-share"><a class="share-button" href="${esc(intent)}" target="_blank" rel="noopener noreferrer" aria-label="この記事の告知文をXで開く">告知 ↗</a><a class="share-hide" href="${esc(off.href)}" aria-label="このブラウザで告知ボタンを非表示にする">非表示</a></div>`;
 }
 
-function entry(p){const raw=String(p.body||'').replace(/^## /gm,'');const excerpt=raw.length>135?raw.slice(0,135)+'…':raw;return `<article class="entry">${meta(p)}<div><h2><a href="post.html?id=${encodeURIComponent(p.id)}">${esc(p.title)}</a></h2>${images(p.images||[])}<p class="excerpt">${esc(excerpt)}</p><a class="read-more" href="post.html?id=${encodeURIComponent(p.id)}">記録を読む</a></div></article>`;}
+function entry(p){const isNote=p.type==='NOTE';const body=isNote?String(p.body||'').replace(/\[画像[1-9][0-9]*\]/g,'').replace(/\s+/g,' ').trim():String(p.body||'');const raw=body.replace(/^## /gm,'');const excerpt=raw.length>135?raw.slice(0,135)+'…':raw;return `<article class="entry">${meta(p)}<div><h2><a href="post.html?id=${encodeURIComponent(p.id)}">${esc(p.title)}</a></h2>${isNote?'':images(p.images||[])}<p class="excerpt">${esc(excerpt)}</p><a class="read-more" href="post.html?id=${encodeURIComponent(p.id)}">${isNote?'続きを読む':'記録を読む'}</a></div></article>`;}
 const nav=[['home','index.html','HOME'],['archive','archive.html','ARCHIVE'],['works','works.html','WORKS'],['about','about.html','ABOUT'],['links','links.html','LINKS']];
 const current=route==='post'?'archive':route;
 const header=`<a class="skip" href="#main">本文へ移動</a><div class="shell"><header class="header"><a class="wordmark" href="index.html">${esc(P.name)}<small>DRAWING ARCHIVE / JOURNAL</small></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">MENU ＋</button><nav class="nav" id="navigation" aria-label="メインナビゲーション">${nav.map(([key,url,label])=>`<a href="${url}" ${current===key?'aria-current="page"':''}>${label}</a>`).join('')}</nav></header>`;
@@ -104,7 +128,7 @@ const icons={x:'<path d="M5 4h5l17 24h-5zM27 4 5 28"/>',instagram:'<rect x="4" y
 content=heading('Elsewhere.','絵を描きながら、こちらにも。')+`<div class="link-list">${P.links.map(l=>{const href=/^https?:\/\//i.test(l.url)?safe(l.url):'';return `<${href?'a':'div'} class="link-card" ${href?`href="${href}" target="_blank" rel="noopener noreferrer"`:''}><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">${icons[l.icon]||icons.image}</svg><div><strong>${esc(l.label)}</strong><p>${esc(l.description)}</p></div><span class="link-end">${href?'↗':'準備中'}</span></${href?'a':'div'}>`;}).join('')}</div>`;
 }else if(route==='post'){
 const p=posts.find(p=>p.id===params.get('id'));
-content=p?`<article class="post-detail"><a class="back" href="archive.html">← ARCHIVE</a><header class="page-head">${meta(p)}<h1>${esc(p.title)}</h1></header>${images(p.images)}<div class="prose">${prose(p.body)}</div>${sharePost(p)}<a class="back" href="archive.html?month=${p.date.slice(0,7)}">${p.date.slice(0,7).replace('-','年')}月の記録へ</a></article>`:heading('Not found.','この記録が見つかりませんでした。')+'<a class="text-link" href="archive.html">ARCHIVEへ戻る</a>';
+content=p?`<article class="post-detail"><a class="back" href="archive.html">← ARCHIVE</a><header class="page-head">${meta(p)}<h1>${esc(p.title)}</h1></header>${p.type==='NOTE'?noteContent(p):images(p.images)+'<div class="prose">'+prose(p.body)+'</div>'}${sharePost(p)}<a class="back" href="archive.html?month=${p.date.slice(0,7)}">${p.date.slice(0,7).replace('-','年')}月の記録へ</a></article>`:heading('Not found.','この記録が見つかりませんでした。')+'<a class="text-link" href="archive.html">ARCHIVEへ戻る</a>';
 if(p)document.title=p.title+' | '+P.name;
 }
 if(route!=='post')document.title=(nav.find(n=>n[0]===route)?.[2]||'Drawing Archive')+' | '+P.name;
