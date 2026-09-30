@@ -112,7 +112,7 @@ content=`<section class="hero"><div class="hero-top">${avatar()}<span class="eye
 const type=types.includes(params.get('type'))?params.get('type'):'ALL';const month=params.get('month')||'';
 const url=(t,m)=>'archive.html?'+new URLSearchParams({type:t,...(m?{month:m}:{})});
 const dates=[...new Set(posts.map(p=>p.date.slice(0,7)))];const years=[...new Set(dates.map(d=>d.slice(0,4)))];
-const filtered=posts.filter(p=>(type==='ALL'||p.type===type)&&(!month||p.date.startsWith(month)));
+const filtered=posts.filter(p=>(type==='ALL'||p.type===type||p.categories?.includes(type))&&(!month||p.date.startsWith(month)));
 const paged = paginate(filtered);
 const pager = pagination(paged, {type, ...(month ? {month} : {})});
 let previous='';
