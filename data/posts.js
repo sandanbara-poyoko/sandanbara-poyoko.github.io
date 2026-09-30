@@ -1,6 +1,7 @@
 window.POSTS = [
   {
     "id": "note-2026-09-review",
+    "categories": ["MONTHLY"],
     "date": "2026-09-30",
     "type": "NOTE",
     "title": "2026年9月の振り返り",
