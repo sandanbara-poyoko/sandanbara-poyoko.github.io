@@ -6,7 +6,8 @@ const safe=s=>{const v=String(s||'').trim();return /^(https?:\/\/|(?:\.\/)?asset
 const route=document.body.dataset.page;
 const P=window.PROFILE;
 if(!P||!Array.isArray(window.POSTS)||!Array.isArray(window.WORKS)){root.innerHTML='<div class="error">データを読み込めませんでした。dataフォルダーのファイルと記号の抜けを確認してください。</div>';return;}
-const posts=[...window.POSTS].sort((a,b)=>b.date.localeCompare(a.date));
+const dateKey=s=>String(s).split('-').map((part,i)=>i?part.padStart(2,'0'):part).join('-');
+const posts=[...window.POSTS].sort((a,b)=>dateKey(b.date).localeCompare(dateKey(a.date)));
 const params=new URLSearchParams(location.search);
 
 // 告知用の表示設定（認証ではなく、このブラウザだけの表示切り替え）。
@@ -58,7 +59,8 @@ function pagination(state, filters = {}) {
 
 const date=s=>esc(s.replaceAll('-','.'));
 const avatar=()=>`<span class="avatar ${P.avatarFromScreenshot?'screenshot':''}"><img src="${safe(P.avatar)}" alt="${esc(P.name)}のプロフィール画像"></span>`;
-function prose(text){return String(text||'').split(/\n\s*\n/).map(block=>block.split(/(?=^## )/m).filter(Boolean).map(part=>{if(part.startsWith('## ')){const [title,...rest]=part.split('\n');return `<h3>${esc(title.slice(3))}</h3>${rest.length?`<p>${esc(rest.join('\n'))}</p>`:''}`;}return `<p>${esc(part)}</p>`;}).join('')).join('');}
+const inline=s=>esc(s).replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
+function prose(text){return String(text||'').split(/\n\s*\n/).map(block=>block.split(/(?=^## )/m).filter(Boolean).map(part=>{if(part.startsWith('## ')){const [title,...rest]=part.split('\n');return `<h3>${esc(title.slice(3))}</h3>${rest.length?`<p>${inline(rest.join('\n'))}</p>`:''}`;}return `<p>${inline(part)}</p>`;}).join('')).join('');}
 function meta(p){return `<div class="entry-meta"><time datetime="${esc(p.date)}">${date(p.date)}</time><span class="tag">${esc(p.type)}</span>${p.sample?'<span class="sample">記入例</span>':''}</div>`;}
 function images(list){return list?.length?`<div class="entry-images ${list.length===1?'single':''}">${list.map(im=>`<button class="image-button" type="button" data-image="${safe(im.src)}" data-alt="${esc(im.alt)}" aria-label="${esc(im.alt||'画像')}を拡大"><img src="${safe(im.src)}" alt="${esc(im.alt)}" loading="lazy"></button>`).join('')}</div>`:'';}
 
